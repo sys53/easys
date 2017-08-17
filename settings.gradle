@@ -1,0 +1,10 @@
+rootProject.name = 'easys-platform'
+
+include 'easys-platform-engine'
+include 'easys-platform-dao'
+include 'easys-platform-service'
+include 'easys-platform-manager'
+include 'easys-platform-api'
+include 'easys-platform-plugins'
+include 'easys-platform-plugin-dictionary'
+

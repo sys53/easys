@@ -1,0 +1,214 @@
+buildscript {
+    repositories {
+        maven { url 'http://localhost:32769/nexus/content/groups/public/' }
+    }
+    dependencies {
+        classpath("io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE")
+    }
+}
+
+plugins {
+    id "org.sonarqube" version "2.5"
+    id 'org.springframework.boot' version '1.5.6.RELEASE'
+    id 'java'
+    id 'maven'
+}
+
+ext {
+    moduleProjects = subprojects.findAll {
+        !it.name.equals('easys-platform-build-src') && !it.name.equals('easys-platform-bom')
+    }
+}
+
+
+configure(allprojects) {
+    group = "com.easys"
+    version = qualifyVersionIfNecessary(version)
+
+    ext.commonsVersion = "1.0-SNAPSHOT"
+
+    ext.activationApiVersion = "1.1.1"
+    ext.annotationApiVersion = "1.3"
+    ext.aspectjVersion = "1.9.0.BETA-6"
+    ext.beanvalVersion = "1.1.0.Final"
+    ext.cacheApiVersion = "1.0.0"
+    ext.caffeineVersion = "2.5.3"
+    ext.eclipselinkVersion = "2.6.5-RC2"
+    ext.ehcacheVersion = "2.10.4"
+    ext.ehcachejcacheVersion = "1.0.1"
+    ext.ehcache3Version = "3.3.1"
+    ext.ejbApiVersion = "3.2"
+    ext.elApiVersion = "3.0.1-b04"
+    ext.fileuploadVersion = "1.3.3"
+    ext.freemarkerVersion = "2.3.26-incubating"
+    ext.groovyVersion = "2.5.0-beta-1"
+    ext.gsonVersion = "2.8.1"
+    ext.hamcrestVersion = "1.3"
+    ext.hibernate5Version = "5.2.10.Final"
+    ext.hibvalVersion = "5.4.1.Final"
+    ext.hsqldbVersion = "2.4.0"
+    ext.httpasyncVersion = "4.1.3"
+    ext.httpclientVersion = "4.5.3"
+    ext.interceptorApiVersion = "1.2"
+    ext.jackson2Version = "2.9.0"
+    ext.javamailVersion = "1.6.0"
+    ext.jaxbVersion = "2.2.11"
+    ext.jaxwsVersion = "2.2.11"
+    ext.jcaVersion = "1.7"
+    ext.jettyVersion = "9.4.6.v20170531"
+    ext.jmsVersion = "2.0.1"
+    ext.jodaVersion = "2.9.9"
+    ext.jpaVersion = "2.1.1"
+    ext.jsfVersion = "2.2"
+    ext.jsonassertVersion = "1.5.0"
+    ext.jspVersion = "2.3.2-b02"
+    ext.jtaVersion = "1.2"
+    ext.junitVersion = "4.12"
+    ext.junitVintageVersion = "4.12.0-RC2"
+    ext.junitJupiterVersion = '5.0.0-RC2'
+    ext.junitPlatformVersion = '1.0.0-RC2'
+    ext.log4jVersion = '2.8.2'
+    ext.nettyVersion = "4.1.13.Final"
+    ext.niomultipartVersion = "1.1.0"
+    ext.okhttp3Version = "3.8.1"
+    ext.poiVersion = "3.16"
+    ext.protobufVersion = "3.3.1"
+    ext.quartzVersion = "2.3.0"
+    ext.reactorVersion = "Bismuth-BUILD-SNAPSHOT"
+    ext.romeVersion = "1.7.4"
+    ext.rxjavaVersion = '1.3.0'
+    ext.rxjavaAdapterVersion = '1.2.1'
+    ext.rxjava2Version = '2.1.2'
+    ext.rxnettyVersion = '0.5.2'
+    ext.servletVersion = "3.1.0"
+    ext.slf4jVersion = "1.7.25"
+    ext.snakeyamlVersion = "1.18"
+    ext.testngVersion = "6.11"
+    ext.tiles3Version = "3.0.7"
+    ext.tomcatVersion = "8.5.16"
+    ext.tyrusVersion = "1.13.1"
+    ext.undertowVersion = "1.4.18.Final"
+    ext.websocketVersion = "1.1"
+    ext.woodstoxVersion = "5.0.3"
+    ext.xmlunitVersion = "2.3.0"
+    ext.xstreamVersion = "1.4.10"
+    ext.springBootVersion = "1.5.6.RELEASE"
+
+    ext.gradleScriptDir = "${rootProject.projectDir}/gradle"
+
+    apply plugin: "java"
+    apply plugin: "maven"
+
+
+    configurations.all {
+        // Check for updates every build
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+
+        // Consistent netty version (e.g. clashes between netty-all vs netty-common)
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'io.netty') {
+                details.useVersion nettyVersion
+            }
+        }
+    }
+
+    compileJava.options*.compilerArgs = [
+            "-Xlint:serial", "-Xlint:varargs", "-Xlint:cast", "-Xlint:classfile",
+            "-Xlint:dep-ann", "-Xlint:divzero", "-Xlint:empty", "-Xlint:finally",
+            "-Xlint:overrides", "-Xlint:path", "-Xlint:processing", "-Xlint:static",
+            "-Xlint:try", "-Xlint:fallthrough", "-Xlint:rawtypes", "-Xlint:deprecation",
+            "-Xlint:unchecked", "-Xlint:-options"
+    ]
+
+    compileTestJava.options*.compilerArgs = [
+            "-Xlint:serial", "-Xlint:-varargs", "-Xlint:cast", "-Xlint:classfile",
+            "-Xlint:dep-ann", "-Xlint:divzero", "-Xlint:empty", "-Xlint:finally",
+            "-Xlint:overrides", "-Xlint:path", "-Xlint:processing", "-Xlint:static",
+            "-Xlint:try", "-Xlint:-fallthrough", "-Xlint:-rawtypes", "-Xlint:-deprecation",
+            "-Xlint:-unchecked", "-Xlint:-options"]
+
+    compileJava {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+        options.encoding = 'UTF-8'
+    }
+
+    compileTestJava {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+        options.encoding = 'UTF-8'
+        options.compilerArgs += "-parameters"
+    }
+
+    test {
+        systemProperty("java.awt.headless", "true")
+        scanForTestClasses = false
+        include(["**/*Tests.class", "**/*Test.class"])
+        // Since we set scanForTestClasses to false, we need to filter out inner
+        // classes with the "$" pattern; otherwise, using -Dtest.single=MyTests to
+        // run MyTests by itself will fail if MyTests contains any inner classes.
+        exclude(["**/Abstract*.class", '**/*$*'])
+        reports.junitXml.destination = file("$buildDir/test-results")
+    }
+
+    repositories {
+        mavenLocal()
+        maven { url "http://localhost:32769/nexus/content/groups/public/" }
+    }
+
+    dependencies {
+        compile("com.easys:easys-commons:${commonsVersion}")
+        compile("org.projectlombok:lombok:1.16.14")
+        compile("org.springframework.boot:spring-boot-starter-web:${springBootVersion}")
+
+        testCompile("org.springframework.boot:spring-boot-starter-test:${springBootVersion}")
+        testCompile("junit:junit:${junitVersion}") {
+            exclude group: 'org.hamcrest', module: 'hamcrest-core'
+        }
+        testCompile("org.mockito:mockito-core:2.6.1") {
+            exclude group: 'org.hamcrest', module: 'hamcrest-core'
+        }
+        testCompile("com.nhaarman:mockito-kotlin:1.5.0") {
+            exclude module: 'kotlin-stdlib'
+            exclude module: 'kotlin-reflect'
+            exclude module: 'mockito-core'
+        }
+        testCompile("org.hamcrest:hamcrest-all:${hamcrestVersion}")
+        testRuntime("org.apache.logging.log4j:log4j-core:${log4jVersion}")
+    }
+
+}
+
+project("easys-platform-api") {
+    description = "Easys Platform Api"
+
+    dependencies {
+        compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+        compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+    }
+}
+project("easys-platform-dao") {
+    description = "Easys Platform Dao"
+    dependencies {
+        compile(project(":easys-platform-api"))
+        compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+        compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+    }
+}
+/*
+ * 提供主题分支分布构建.
+ * CI gradle构建时支持 `-P BRANCH_NAME=<TOPIC>` 参数.
+ * 如果 <TOPIC> 是'ESP-'开头就更新版本
+ *     从 BUILD-SNAPSHOT => <TOPIC>-SNAPSHOT
+ *     例如: 3.2.1.BUILD-SNAPSHOT => 3.2.1.SPR-1234-SNAPSHOT
+ */
+
+def qualifyVersionIfNecessary(version) {
+    if (rootProject.hasProperty("BRANCH_NAME")) {
+        def qualifier = rootProject.getProperty("BRANCH_NAME")
+        if (qualifier.startsWith("ESP-")) {
+            return version.replace('BUILD', qualifier)
+        }
+    }
+    return version
+}
