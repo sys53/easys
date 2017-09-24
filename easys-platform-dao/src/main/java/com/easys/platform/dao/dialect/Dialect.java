@@ -4,7 +4,7 @@
 
 package com.easys.platform.dao.dialect;
 
-import com.easys.commons.util.PropertiesUtil;
+import com.easys.commons.util.PropertiesUtils;
 import com.easys.commons.util.ReflectHelper;
 import com.easys.platform.dao.DaoException;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +22,7 @@ public abstract class Dialect {
 
 	public static Dialect getDialect ( ) {
 		if ( dialect == null ) {
-			String dialectName = PropertiesUtil.getValue ( "application", "esasys.dialect" );
+			String dialectName = PropertiesUtils.getValue ( "application", "esasys.dialect" );
 			dialect = instanceDialect ( dialectName );
 		}
 		return dialect;

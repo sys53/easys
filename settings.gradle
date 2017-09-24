@@ -5,6 +5,13 @@ include 'easys-platform-dao'
 include 'easys-platform-service'
 include 'easys-platform-manager'
 include 'easys-platform-api'
-include 'easys-platform-plugins'
+include 'easys-platform-dao-jpa'
+
 include 'easys-platform-plugin-dictionary'
+project(':easys-platform-plugin-dictionary').projectDir = new File('easys-platform-plugins', 'easys-platform-plugin-dictionary')
+include 'easys-platform-plugin-setting'
+project(':easys-platform-plugin-setting').projectDir = new File('easys-platform-plugins', 'easys-platform-plugin-setting')
+include 'easys-platform-plugin-user'
+project(':easys-platform-plugin-user').projectDir = new File('easys-platform-plugins', 'easys-platform-plugin-user')
+include 'easys-platform-springmvc'
 

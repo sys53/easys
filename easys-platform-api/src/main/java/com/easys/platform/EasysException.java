@@ -13,6 +13,7 @@ import com.easys.commons.enums.IEnum;
  */
 public class EasysException extends RuntimeException {
 
+    private static final long serialVersionUID = -6141133183971970554L;
     private String errCode = "UNKNOWN_EXCEPTION";
 
     public EasysException(IEnum iEnum, Throwable e) {

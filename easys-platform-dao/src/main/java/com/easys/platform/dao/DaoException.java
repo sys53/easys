@@ -16,6 +16,9 @@ import com.easys.platform.EasysException;
  * version $Id: DaoException.java, v 0.1  下午3:04 Exp $
  */
 public class DaoException extends EasysException {
+
+    private static final long serialVersionUID = -655156747847883297L;
+
     public DaoException(IEnum en, Throwable e) {
         super(en, e);
     }

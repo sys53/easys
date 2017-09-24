@@ -5,8 +5,8 @@
 package com.easys.platform.dao;
 
 
-import com.easys.commons.page.PageList;
-import com.easys.commons.page.PagingOrder;
+import com.easys.commons.page.Page;
+import com.easys.commons.page.Paging;
 
 import java.io.Serializable;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.List;
  * Date: 15-8-31 上午9:47
  * version $Id: BaseDao.java, v 0.1 Exp $
  */
-public interface BaseDao<T, ID extends Serializable, QO extends PagingOrder> {
+public interface BaseDao<P, I extends Serializable, Q extends Paging>  extends GenericDao{
 
     /**
      * 根据ID查找对象
@@ -26,68 +26,21 @@ public interface BaseDao<T, ID extends Serializable, QO extends PagingOrder> {
      * @param id 对象ID
      * @return 找到的对象
      */
-    T getById(ID id);
-
-
-    /**
-     * 刷新po对象
-     *
-     * @param obj
-     * @return
-     */
-    T refresh(T obj);
-
-    /**
-     * 保存对象
-     *
-     * @param obj
-     */
-    void save(T obj);
-
-    /**
-     * 保存/更新对象
-     *
-     * @param obj
-     */
-    T merge(T obj);
-
-    /**
-     * 更新对象
-     *
-     * @param obj
-     */
-    void update(T obj);
+    P getById(I id);
 
     /**
      * 根据ID删除对象
      *
      * @param id
      */
-    void deleteById(ID id);
+    void removeById(I id);
 
     /**
      * 根据id数组删除一组对象
      *
      * @param ids
      */
-    void deleteByIds(ID[] ids);
-
-    /**
-     * 删除对象
-     *
-     * @param obj 要删除的对象必须包含ID值
-     */
-    void delete(T obj);
-
-    /**
-     * 将缓存中的数据刷入数据库
-     */
-    void flush();
-
-    /**
-     * 分离所有正在被管理的实体
-     */
-    void clear();
+    void batchRemoveByIds(I[] ids);
 
     /**
      * 默认的分页查询（仅在相关service、biz层代码时使用）
@@ -95,14 +48,16 @@ public interface BaseDao<T, ID extends Serializable, QO extends PagingOrder> {
      * @param qo
      * @return
      */
-    PageList<T> queryPageList(QO qo);
+    Page<P> queryPage(Q qo);
 
     /**
      * 查找全部
      *
+     * 警告，虽然默认有本接口，但建议对于数据量较大的领域类要禁用此方法
+     *
      * @return
      */
-    List<T> findAll();
+    List<P> findAll();
 
 
 }

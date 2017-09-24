@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         maven { url 'http://localhost:32769/nexus/content/groups/public/' }
+        jcenter()
     }
     dependencies {
         classpath("io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE")
@@ -93,6 +94,11 @@ configure(allprojects) {
     ext.xmlunitVersion = "2.3.0"
     ext.xstreamVersion = "1.4.10"
     ext.springBootVersion = "1.5.6.RELEASE"
+    ext.springVersion = "4.3.10.RELEASE"
+
+    ext.hibernateJpaApiVersion="1.0.0.Final"
+    ext.lang3Version="3.4"
+
 
     ext.gradleScriptDir = "${rootProject.projectDir}/gradle"
 
@@ -178,23 +184,130 @@ configure(allprojects) {
     }
 
 }
+configure(rootProject) {
+    description = "Easys Platform"
+
+    apply plugin: "groovy"
+
+    configurations.archives.artifacts.clear()
+
+    dependencies {  // for integration tests
+    }
+
+    artifacts {
+//        archives docsZip
+//        archives schemaZip
+//        archives distZip
+    }
+
+    task wrapper(type: Wrapper) {
+        description = "Generates gradlew[.bat] scripts"
+        gradleVersion = '3.5.1'
+
+        doLast() {
+            def gradleOpts = "-XX:MaxMetaspaceSize=1024m -Xmx1024m"
+            def gradleBatOpts = "$gradleOpts -XX:MaxHeapSize=256m"
+            File wrapperFile = file("gradlew")
+            wrapperFile.text = wrapperFile.text.replace("DEFAULT_JVM_OPTS=",
+                    "GRADLE_OPTS=\"$gradleOpts \$GRADLE_OPTS\"\nDEFAULT_JVM_OPTS=")
+            File wrapperBatFile = file("gradlew.bat")
+            wrapperBatFile.text = wrapperBatFile.text.replace("set DEFAULT_JVM_OPTS=",
+                    "set GRADLE_OPTS=$gradleBatOpts %GRADLE_OPTS%\nset DEFAULT_JVM_OPTS=")
+        }
+    }
+
+}
 
 project("easys-platform-api") {
     description = "Easys Platform Api"
 
     dependencies {
-        compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
-        compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+        compile("org.apache.commons:commons-lang3:${lang3Version}")
+        compile("org.springframework:spring-aspects:${springVersion}")
+    }
+}
+project("easys-platform-engine") {
+    description = "Easys Platform Engine"
+
+    dependencies {
+        compile(project(":easys-platform-api"))
+        compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
+        compile("org.springframework:spring-tx:${springVersion}")
+
     }
 }
 project("easys-platform-dao") {
     description = "Easys Platform Dao"
     dependencies {
         compile(project(":easys-platform-api"))
-        compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
+        compile("org.projectlombok:lombok:1.16.14")
+
         compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
     }
 }
+
+
+project("easys-platform-manager") {
+    description = "Easys Platform Manager"
+    dependencies {
+        compile(project(":easys-platform-api"))
+        compile(project(":easys-platform-dao"))
+        compile("org.projectlombok:lombok:1.16.14")
+    }
+}
+
+project("easys-platform-service") {
+    description = "Easys Platform Service"
+    dependencies {
+        compile("org.projectlombok:lombok:1.16.14")
+        compile(project(":easys-platform-dao"))
+        compile(project(":easys-platform-manager"))
+        compile("org.springframework:spring-tx:${springVersion}")
+    }
+}
+
+project("easys-platform-dao-jpa") {
+    description = "Easys Platform Jpa Dao"
+
+    dependencies {
+        compile(project(":easys-platform-dao"))
+        compile("org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final")
+    }
+}
+
+project("easys-platform-springmvc") {
+    description = "Easys Platform intergration spring mvc"
+
+    dependencies {
+        compile(project(":easys-platform-engine"))
+    }
+}
+
+
+project("easys-platform-plugin-dictionary") {
+    description = "Easys Platform Dictionary Plugin"
+
+    dependencies {
+        compile(project(":easys-platform-dao-jpa"))
+        compile(project(":easys-platform-manager"))
+        compile(project(":easys-platform-service"))
+        compile("org.hibernate:hibernate-entitymanager:${hibernate5Version}")
+    }
+}
+
+project("easys-platform-plugin-setting") {
+    description = "Easys Platform Setting Plugin"
+
+    dependencies {
+
+        compile(project(":easys-platform-dao-jpa"))
+        compile(project(":easys-platform-manager"))
+        compile(project(":easys-platform-service"))
+        compile(project(":easys-platform-springmvc"))
+        compile("org.hibernate:hibernate-entitymanager:${hibernate5Version}")
+    }
+}
+
 /*
  * 提供主题分支分布构建.
  * CI gradle构建时支持 `-P BRANCH_NAME=<TOPIC>` 参数.
